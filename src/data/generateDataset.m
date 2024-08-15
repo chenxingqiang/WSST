@@ -43,14 +43,19 @@ function [X_feature_PPR, X_feature_Eig, y_label] = generateDataset(M, K, tau, gr
     Phi = A(:, 1:K); % Select K columns for K users
 
     % Use parallel computing for faster data generation
-    parfor sample = 1:numSamples
-        % Generate positions for base station, users, and eavesdropper
+    for sample = 1:numSamples
+        % Generate BS, UE, ED positions
         [x_BS, y_BS, x_UE, y_UE, x_ED, y_ED] = generatePositions(K, gridSize);
         
-        % Calculate path loss based on positions
+        % Calculate path loss
         [Beta_UE, Beta_ED] = calculatePathLoss(M, K, x_BS, y_BS, x_UE, y_UE, x_ED, y_ED);
         
-        % Generate channel matrices
+        % Debug information
+        disp(['Sample: ', num2str(sample)]);
+        disp(['Beta_UE size: ', num2str(size(Beta_UE))]);
+        disp(['Beta_ED size: ', num2str(size(Beta_ED))]);
+
+        % Generate UE and ED channels
         h_UE = generateUEChannels(M, K, Beta_UE);
         g_ED = generateEDChannel(M, Beta_ED);
         
@@ -58,29 +63,48 @@ function [X_feature_PPR, X_feature_Eig, y_label] = generateDataset(M, K, tau, gr
         N = generateNoise(M, tau, sigma_n_2);
         
         for ii = 1:numPED
-            % Randomly determine if an attack is present (30% probability)
-            indAttPres = rand() < 0.3;
-            
-            % Randomly select a user to be attacked
+            % Generate attack label and attacked user index
+            indAttPres = rand() < 0.3; % 30% chance of PSA
             indAttUE = randi([1 K], 1);
-            
-            % Calculate signal-to-noise ratios
-            SNR_UE = P_UE * mean(Beta_UE) / sigma_n_2;
+
+            % Calculate SNR
+            SNR_UE = P_UE * mean(Beta_UE, 1) / sigma_n_2;  % Average SNR across antennas for each UE
             SNR_ED = P_ED(ii) * Beta_ED / sigma_n_2;
-            
-            % Adjust attack strength based on SNR ratio
-            attack_strength = min(1, SNR_ED / SNR_UE);
-            
-            % Generate received signal at base station
+
+            % Calculate attack strength (scalar value for the attacked UE)
+            attack_strength = min(1, SNR_ED / SNR_UE(indAttUE));
+
+            % Debug information
+            disp(['Sample: ', num2str(sample), ', PED index: ', num2str(ii)]);
+            disp(['SNR_UE size: ', num2str(size(SNR_UE)), ', SNR_ED size: ', num2str(size(SNR_ED))]);
+            disp(['attack_strength: ', num2str(attack_strength)]);
+            disp(['indAttPres: ', num2str(indAttPres), ', indAttUE: ', num2str(indAttUE)]);
+            disp(['h_UE size: ', num2str(size(h_UE))]);
+            disp(['Phi size: ', num2str(size(Phi))]);
+            disp(['g_ED size: ', num2str(size(g_ED))]);
+            disp(['N size: ', num2str(size(N))]);
+
+            % Generate BS received signal
             Y = sqrt(P_UE) * h_UE * Phi.' + ...
-                indAttPres * attack_strength * sqrt(P_ED(ii)) * g_ED * Phi(:, indAttUE).' + N;
-            
+                indAttPres * attack_strength * sqrt(P_ED(ii)) * (g_ED * Phi(:, indAttUE).') + N;
+
+            % Debug information for Y
+            disp(['Y size: ', num2str(size(Y))]);
+
             % Calculate Pilot Pollution Ratio (PPR) feature
             PPR = calculatePPR(K, M, tau, P_UE, Beta_UE, Y, Phi, sigma_n_2);
             PPR_feature = sort(PPR / max(PPR), 'descend');
             
             % Calculate eigenvalue-based feature
             lambda_R = calculateEigenvalues(M, tau, P_UE, h_UE, Phi, g_ED, N, indAttPres, P_ED(ii), indAttUE, K);
+            
+            disp(['indAttPres type: ', class(indAttPres)]);
+            disp(['indAttPres value: ', num2str(indAttPres)]);
+            disp('Calling calculateEigenvalues...');
+            lambda_R = calculateEigenvalues(M, tau, P_UE, h_UE, Phi, g_ED, N, logical(indAttPres), P_ED(ii), indAttUE, K);
+            disp('calculateEigenvalues completed successfully.');
+            disp(['lambda_R size: ', num2str(size(lambda_R))]);
+
             Eig_feature = lambda_R.' / max(lambda_R);
             
             % Store features and label

@@ -12,7 +12,7 @@ function lambda_R = calculateEigenvalues(M, tau, P_UE, h_UE, Phi, g_ED, N, indAt
 %   Phi       - Training sequence matrix, size: [tau x K]
 %   g_ED      - Channel vector for eavesdropper, size: [M x 1]
 %   N         - Noise matrix, size: [M x tau]
-%   indAttPres- Indicator of attack presence (0 or 1)
+%   indAttPres- Indicator of attack presence (logical: true or false)
 %   P_ED      - Transmit power of eavesdropper
 %   indAttUE  - Index of the attacked user
 %   K         - Number of legitimate users
@@ -28,12 +28,15 @@ function lambda_R = calculateEigenvalues(M, tau, P_UE, h_UE, Phi, g_ED, N, indAt
     validateattributes(Phi, {'numeric'}, {'size', [tau, K]});
     validateattributes(g_ED, {'numeric'}, {'column', 'numel', M});
     validateattributes(N, {'numeric'}, {'size', [M, tau]});
-    validateattributes(indAttPres, {'numeric'}, {'binary', 'scalar'});
+    validateattributes(indAttPres, {'logical'}, {'scalar'});
     validateattributes(P_ED, {'numeric'}, {'positive', 'scalar'});
     validateattributes(indAttUE, {'numeric'}, {'integer', 'positive', '<=', K, 'scalar'});
 
     % Generate received signal
-    Y = simulatePSA(h_UE, g_ED, Phi, P_UE, P_ED, N, indAttPres, indAttUE);
+    Y = sqrt(P_UE) * h_UE * Phi.' + N;
+    if indAttPres
+        Y = Y + sqrt(P_ED) * g_ED * Phi(:, indAttUE).';
+    end
     
     % Calculate sample covariance matrix
     R = (Y * Y') / tau;
@@ -41,30 +44,4 @@ function lambda_R = calculateEigenvalues(M, tau, P_UE, h_UE, Phi, g_ED, N, indAt
     % Calculate eigenvalues
     lambda_R = eig(R);
     lambda_R = sort(lambda_R, 'descend');
-
-    % Visualize eigenvalue distribution
-    figure;
-    subplot(2,1,1);
-    plot(lambda_R, 'b-o');
-    title('Eigenvalue Distribution');
-    xlabel('Eigenvalue Index');
-    ylabel('Eigenvalue Magnitude');
-    grid on;
-
-    subplot(2,1,2);
-    histogram(lambda_R, 20);
-    title('Histogram of Eigenvalues');
-    xlabel('Eigenvalue Magnitude');
-    ylabel('Frequency');
-
-    % Calculate and display metrics
-    eigenvalue_spread = lambda_R(1) / lambda_R(end);
-    trace_R = sum(lambda_R);
-    
-    disp(['Eigenvalue spread: ', num2str(eigenvalue_spread)]);
-    disp(['Trace of covariance matrix: ', num2str(trace_R)]);
-
-    % Optionally, you can implement more sophisticated eigenvalue-based detection methods here
-    % For example, you could use the Maximum-Minimum Eigenvalue (MME) detector
-    % or the Energy with Minimum Eigenvalue (EME) detector
 end

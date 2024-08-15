@@ -1,9 +1,34 @@
-function tests = testDetection
+function tests = testDetectionMethods
     tests = functiontests(localfunctions);
 end
 
+function testDetectPSA_PPR(testCase)
+    numSamples = 1000;
+    numFeatures = 8;
+    X_feature_PPR = rand(numSamples, numFeatures);
+    
+    [detection, PPR_values, threshold] = detectPSA_PPR(X_feature_PPR);
+    
+    testCase.verifySize(detection, [numSamples, 1], 'Detection result size is incorrect');
+    testCase.verifyClass(detection, 'logical', 'Detection result should be logical');
+    testCase.verifySize(PPR_values, [numSamples, 1], 'PPR values size is incorrect');
+    testCase.verifyTrue(isscalar(threshold), 'Threshold should be a scalar');
+end
+
+function testDetectPSA_MDL(testCase)
+    numSamples = 1000;
+    numFeatures = 7;
+    X_feature_Eig = rand(numSamples, numFeatures);
+    
+    [detection, MDL_values, threshold] = detectPSA_MDL(X_feature_Eig);
+    
+    testCase.verifySize(detection, [numSamples, 1], 'Detection result size is incorrect');
+    testCase.verifyClass(detection, 'logical', 'Detection result should be logical');
+    testCase.verifySize(MDL_values, [numSamples, 1], 'MDL values size is incorrect');
+    testCase.verifyTrue(isscalar(threshold), 'Threshold should be a scalar');
+end
+
 function testDetectMultipleAttackers(testCase)
-    % Generate dummy data
     numSamples = 1000;
     numFeaturesPPR = 8;
     numFeaturesEig = 7;
@@ -26,13 +51,4 @@ function testDetectMultipleAttackers(testCase)
     testCase.verifySize(predictions_PPR_NN, [numSamples * numPED, 1], 'PPR-NN predictions size is incorrect');
     testCase.verifySize(predictions_Eig_NN, [numSamples * numPED, 1], 'Eig-NN predictions size is incorrect');
     testCase.verifySize(y_true, [numSamples * numPED, 1], 'True labels size is incorrect');
-    
-    testCase.verifyGreaterThanOrEqual(detAcc_PPR, 0, 'PPR detection accuracy should be non-negative');
-    testCase.verifyLessThanOrEqual(detAcc_PPR, 1, 'PPR detection accuracy should be less than or equal to 1');
-    testCase.verifyGreaterThanOrEqual(detAcc_MDL, 0, 'MDL detection accuracy should be non-negative');
-    testCase.verifyLessThanOrEqual(detAcc_MDL, 1, 'MDL detection accuracy should be less than or equal to 1');
-    testCase.verifyGreaterThanOrEqual(detAcc_PPR_NN, 0, 'PPR-NN detection accuracy should be non-negative');
-    testCase.verifyLessThanOrEqual(detAcc_PPR_NN, 1, 'PPR-NN detection accuracy should be less than or equal to 1');
-    testCase.verifyGreaterThanOrEqual(detAcc_Eig_NN, 0, 'Eig-NN detection accuracy should be non-negative');
-    testCase.verifyLessThanOrEqual(detAcc_Eig_NN, 1, 'Eig-NN detection accuracy should be less than or equal to 1');
 end

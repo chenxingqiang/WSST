@@ -80,7 +80,7 @@ function main()
     
     % Visualize Results
     disp('Generating visualization plots...');
-    
+
     % Plot Error Rates vs. Eavesdropper Power
     plotErrorRates(P_ED_dBm, FPR_PPR_NN, FNR_PPR_NN, FPR_Eig_NN, FNR_Eig_NN);
 
@@ -94,7 +94,31 @@ function main()
     complexityLevels = [50, 100, 150, 200];  % Assumed antenna numbers for complexity
     accuracyLevels = [mean(detAcc_PPR), mean(detAcc_MDL), mean(detAcc_PPR_NN), mean(detAcc_Eig_NN)];
     plotAccuracyVsComplexity(complexityLevels, accuracyLevels);
+    
+    % Plot Execution Times
+    executionTimes = [timeTrain, timeDetect, timeLocateSingle, timeLocateMultiple];
+    plotExecutionTime(executionTimes);
 
+    % Select best algorithm and plot results
+    bestAlgoIdx = selectBestAlgorithm(detAcc_PPR, detAcc_MDL, detAcc_PPR_NN, detAcc_Eig_NN);
+    plotBestAlgorithm(P_ED_dBm, bestAlgoIdx);
+
+    % Plot MDL Histogram
+    MDLValues = calculateMDL(X_feature_PPR); % Assuming X_feature_PPR contains the necessary data
+    plotMDLHistogram(MDLValues);
+
+    % Plot Received Signal
+    receivedSignal = simulatePSA(M, K, tau, P_ED); % Assuming simulatePSA returns the received signal
+    plotReceivedSignal(receivedSignal);
+
+    % Visualize Network Topology
+    positions = generatePositions(gridSize, K); % Assuming generatePositions returns user positions
+    visualizeNetworkTopology(positions);
+
+    % Visualize PPR Distribution
+    PPRValues = calculatePPR(X_feature_PPR); % Assuming X_feature_PPR contains the necessary data
+    visualizePPRDistribution(PPRValues);
+    
    % Generate and plot heatmap
     [numRows, numCols] = size(detAcc_PPR_NN);
     if numCols ~= K

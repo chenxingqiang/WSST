@@ -55,16 +55,7 @@ function [detection, MDL_values, threshold] = detectPSA_MDL(X_feature_Eig, varar
     disp(['Detection rate: ' num2str(mean(detection)*100) '%']);
     disp(['Threshold used: ' num2str(threshold)]);
 
-    % Create visualization
-    figure;
-    histogram(MDL_values, 50);
-    hold on;
-    xline(threshold, 'r--', 'LineWidth', 2);
-    xlabel('MDL Values');
-    ylabel('Frequency');
-    title('MDL Distribution and Detection Threshold');
-    legend('MDL Values', 'Threshold');
-    hold off;
+    
 end
 
 function MDL_values = calculateMDL(X_feature_Eig)

@@ -24,16 +24,4 @@ function [x_BS, y_BS, x_UE, y_UE, x_ED, y_ED] = generatePositions(K, gridSize)
     % Generate ED position
     x_ED = gridSize * rand;
     y_ED = gridSize * rand;
-
-    % Visualize the positions (optional)
-    figure;
-    scatter(x_BS, y_BS, 100, 'rs', 'filled'); hold on;
-    scatter(x_UE, y_UE, 50, 'bo');
-    scatter(x_ED, y_ED, 75, 'gd', 'filled');
-    legend('Base Station', 'User Equipment', 'Eavesdropper');
-    title('Network Topology');
-    xlabel('X coordinate (m)');
-    ylabel('Y coordinate (m)');
-    axis([0 gridSize 0 gridSize]);
-    grid on;
 end

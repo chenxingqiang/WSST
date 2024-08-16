@@ -58,16 +58,6 @@ function [detection, PPR_values, threshold] = detectPSA_PPR(X_feature_PPR, varar
     disp(['Detection rate: ' num2str(mean(detection)*100) '%']);
     disp(['Threshold used: ' num2str(threshold)]);
 
-    % Optionally, you can create a plot to visualize the detection
-    figure;
-    histogram(PPR_values, 50);
-    hold on;
-    xline(threshold, 'r--', 'LineWidth', 2);
-    xlabel('PPR Values');
-    ylabel('Frequency');
-    title('PPR Distribution and Detection Threshold');
-    legend('PPR Values', 'Threshold');
-    hold off;
 end
 
 function threshold = otsuthreshold(values)

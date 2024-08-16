@@ -37,25 +37,4 @@ function Y = simulatePSA(h_UE, g_ED, Phi, P_UE, P_ED, N, indAttPres, indAttUE)
     if indAttPres
         Y = Y + sqrt(P_ED) * g_ED * Phi(:, indAttUE).';
     end
-
-    % Visualize received signal
-    figure;
-    subplot(2,1,1);
-    imagesc(abs(Y));
-    colorbar;
-    title('Magnitude of Received Signal');
-    xlabel('Time Index');
-    ylabel('Antenna Index');
-
-    subplot(2,1,2);
-    plot(sum(abs(Y).^2, 1));
-    title('Total Received Power Over Time');
-    xlabel('Time Index');
-    ylabel('Power');
-
-    % Calculate and display signal-to-noise ratio (SNR)
-    signal_power = mean(abs(Y(:) - N(:)).^2);
-    noise_power = mean(abs(N(:)).^2);
-    SNR_dB = 10 * log10(signal_power / noise_power);
-    disp(['Estimated SNR: ', num2str(SNR_dB), ' dB']);
 end

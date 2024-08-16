@@ -91,6 +91,16 @@ This heatmap visualizes the detection accuracy of the PPR-NN method.
 
 This plot shows the localization accuracy for single and multiple attacker scenarios.
 
+### MDL Histogram
+![MDL Histogram](MDLHistogram.png)
+
+This histogram displays the distribution of MDL values along with a detection threshold.
+
+### Received Signal
+![Received Signal](ReceivedSignal.png)
+
+This plot visualizes the received signal at the base station under a potential Pilot Spoofing Attack scenario.
+
 These plots provide valuable insights into the performance and behavior of the PSA detection and localization methods.
 
 ## Directory Structure
@@ -123,7 +133,9 @@ These plots provide valuable insights into the performance and behavior of the P
 ├── LocalizationAccuracy.png
 ├── main.asv
 ├── main.m
+├── MDLHistogram.png
 ├── README.md
+├── ReceivedSignal.png
 ├── setup.m
 ├── src
 │   ├── attack

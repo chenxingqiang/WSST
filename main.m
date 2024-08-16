@@ -108,7 +108,15 @@ function main()
     plotMDLHistogram(MDLValues);
 
     % Plot Received Signal
-    receivedSignal = simulatePSA(M, K, tau, P_ED); % Assuming simulatePSA returns the received signal
+    h_UE = randn(M, K);  % Generate random channel matrix for legitimate users
+    g_ED = randn(M, 1);  % Generate random channel vector for eavesdropper
+    Phi = randn(tau, K); % Generate random training sequence matrix
+    P_UE = 1;  % Set transmit power of user equipment
+    N = randn(M, tau);  % Generate random noise matrix
+    indAttPres = randi([0, 1]);  % Randomly set the indicator of attack presence
+    indAttUE = randi(K);  % Randomly set the index of the attacked user
+    P_ED_single = P_ED(1);  % Use the first element of P_ED as a scalar
+    receivedSignal = simulatePSA(h_UE, g_ED, Phi, P_UE, P_ED_single, N, indAttPres, indAttUE);
     plotReceivedSignal(receivedSignal);
 
     % Visualize Network Topology
@@ -118,7 +126,7 @@ function main()
     % Visualize PPR Distribution
     PPRValues = calculatePPR(X_feature_PPR); % Assuming X_feature_PPR contains the necessary data
     visualizePPRDistribution(PPRValues);
-    
+
    % Generate and plot heatmap
     [numRows, numCols] = size(detAcc_PPR_NN);
     if numCols ~= K

@@ -14,7 +14,7 @@ function plotLocalizationAccuracy(attackerTargets, attackerTarget, n_attackers)
     
     % Single attacker localization
     subplot(1, 2, 1);
-    plot(P_ED_dBm, attackerTarget, 'bo-', 'LineWidth', 2);
+    plot(P_ED_dBm, attackerTarget, 'bo-', 'LineWidth', 1);
     xlabel('Eavesdropper Power (dBm)');
     ylabel('Estimated Attacker Index');
     title('Single Attacker Localization');
@@ -24,7 +24,7 @@ function plotLocalizationAccuracy(attackerTargets, attackerTarget, n_attackers)
     % Multiple attackers localization
     subplot(1, 2, 2);
     for i = 1:n_attackers
-        plot(P_ED_dBm, attackerTargets(:, i), 'o-', 'LineWidth', 2);
+        plot(P_ED_dBm, attackerTargets(:, i), 'o-', 'LineWidth', 1);
         hold on;
     end
     hold off;

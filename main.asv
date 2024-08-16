@@ -74,10 +74,9 @@ function main()
 
     % Calculate Error Rates
     disp('Calculating error rates...');
-    numPED = length(P_ED_dBm);
-    [FPR_PPR_NN, FNR_PPR_NN] = calculateErrorRates(predictions_PPR_NN, y_true, numPED);
-    [FPR_Eig_NN, FNR_Eig_NN] = calculateErrorRates(predictions_Eig_NN, y_true, numPED);
-    
+    [FPR_PPR_NN, FNR_PPR_NN] = calculateErrorRates(predictions_PPR_NN, y_true);
+    [FPR_Eig_NN, FNR_Eig_NN] = calculateErrorRates(predictions_Eig_NN, y_true);
+
     % Visualize Results
     disp('Generating visualization plots...');
     
@@ -95,15 +94,8 @@ function main()
     accuracyLevels = [mean(detAcc_PPR), mean(detAcc_MDL), mean(detAcc_PPR_NN), mean(detAcc_Eig_NN)];
     plotAccuracyVsComplexity(complexityLevels, accuracyLevels);
 
-   % Generate and plot heatmap
-    [numRows, numCols] = size(detAcc_PPR_NN);
-    if numCols ~= K
-        warning('Number of columns in detAcc_PPR_NN does not match K. Adjusting heatmap size.');
-        K_heatmap = numCols;
-    else
-        K_heatmap = K;
-    end
-    heatmapData = reshape(detAcc_PPR_NN, [], K_heatmap);
+    % Generate and plot heatmap
+    heatmapData = reshape(detAcc_PPR_NN, [], K);
     plotHeatmap(heatmapData);
 
     % Select best algorithm and plot results

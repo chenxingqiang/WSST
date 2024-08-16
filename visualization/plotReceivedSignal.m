@@ -25,7 +25,7 @@ ylabel('Antenna Index');
 % Plot total received power over time
 subplot(2, 1, 2);
 totalPower = sum(abs(Y).^2, 1);
-plot(1:numTimePoints, totalPower, '-o', 'LineWidth', 2, 'MarkerSize', 6);
+plot(1:numTimePoints, totalPower, '-o', 'LineWidth', 1, 'MarkerSize', 6);
 title('Total Received Power Over Time');
 xlabel('Time Index');
 ylabel('Power');

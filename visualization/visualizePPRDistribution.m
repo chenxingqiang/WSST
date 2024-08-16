@@ -24,7 +24,7 @@ histogram(PPR_values, 50, 'Normalization', 'probability');
 hold on;
 
 % Plot threshold line
-xline(threshold, 'r--', 'LineWidth', 2);
+xline(threshold, 'r--', 'LineWidth', 1);
 
 % Customize plot
 xlabel('PPR Values');

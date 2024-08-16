@@ -11,7 +11,7 @@ function plotBestAlgorithm(P_ED_dBm, bestAlgoIdx)
     figure('Position', [100, 100, 800, 400]);
     for i = 1:length(algorithms)
         plot(P_ED_dBm(bestAlgoIdx == i), i * ones(sum(bestAlgoIdx == i), 1), ...
-             'o', 'Color', colors(i,:), 'MarkerSize', 10, 'LineWidth', 2);
+             'o', 'Color', colors(i,:), 'MarkerSize', 10, 'LineWidth', 1);
         hold on;
     end
     

@@ -12,11 +12,11 @@ function plotDetectionAccuracy(P_ED_dBm, detAcc_PPR, detAcc_MDL, detAcc_PPR_NN, 
 %   detAcc_Eig_NN- Detection accuracy using Eigenvalue-based neural network
 
     figure;
-    plot(P_ED_dBm, detAcc_PPR, 'b-o', 'LineWidth', 2);
+    plot(P_ED_dBm, detAcc_PPR, 'b-o', 'LineWidth', 1);
     hold on;
-    plot(P_ED_dBm, detAcc_MDL, 'r-s', 'LineWidth', 2);
-    plot(P_ED_dBm, detAcc_PPR_NN, 'g-^', 'LineWidth', 2);
-    plot(P_ED_dBm, detAcc_Eig_NN, 'm-d', 'LineWidth', 2);
+    plot(P_ED_dBm, detAcc_MDL, 'r-s', 'LineWidth', 1);
+    plot(P_ED_dBm, detAcc_PPR_NN, 'g-^', 'LineWidth', 1);
+    plot(P_ED_dBm, detAcc_Eig_NN, 'm-d', 'LineWidth', 1);
     hold off;
 
     xlabel('Eavesdropper Power (dBm)');

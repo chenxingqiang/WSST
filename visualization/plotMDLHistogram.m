@@ -21,7 +21,7 @@ function plotMDLHistogram(MDL_values, threshold, num_bins)
     hold on;
     
     % Add the threshold line
-    xline(threshold, 'r--', 'LineWidth', 2);
+    xline(threshold, 'r--', 'LineWidth', 1);
     
     % Label the axes
     xlabel('MDL Values');

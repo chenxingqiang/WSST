@@ -31,6 +31,17 @@ function [detection, MDL_values, threshold] = detectPSA_MDL(X_feature_Eig, varar
     % Calculate MDL values
     MDL_values = calculateMDL(X_feature_Eig);
 
+    % Add these checks:
+    if any(~isreal(MDL_values))
+        warning('MDL values contain complex numbers');
+        MDL_values = real(MDL_values);  % Take only the real part
+    end
+    
+    if any(isnan(MDL_values) | isinf(MDL_values))
+        warning('MDL values contain NaN or Inf');
+        MDL_values = MDL_values(~isnan(MDL_values) & ~isinf(MDL_values));
+    end
+
     % Calculate threshold if not provided
     if isempty(p.Results.Threshold)
         switch p.Results.Method
@@ -58,14 +69,28 @@ function [detection, MDL_values, threshold] = detectPSA_MDL(X_feature_Eig, varar
     
 end
 
-function MDL_values = calculateMDL(X_feature_Eig)
-    % Calculate MDL values based on eigenvalue features
-    % This is a simplified placeholder implementation
-    % In practice, you would implement the actual MDL calculation here
-    MDL_values = sum(log(X_feature_Eig), 2);
-end
+
 
 function threshold = otsuthreshold(values)
+    % Remove any NaN or Inf values
+    values = values(~isnan(values) & ~isinf(values));
+    
+    % Ensure values are real
+    values = real(values);
+    
+    % Shift values to be positive
+    values = values - min(values) + 1;
+    
+    % Ensure values are real
+    if any(~isreal(values))
+        warning('Values contain complex numbers. Taking real part.');
+        values = real(values);
+    end
+    
+    % Add these debug lines:
+    disp(['Min value: ', num2str(min(values))]);
+    disp(['Max value: ', num2str(max(values))]);
+
     % Implement Otsu's method for threshold calculation
     [counts, edges] = histcounts(values, 'Normalization', 'probability');
     binCenters = (edges(1:end-1) + edges(2:end)) / 2;
@@ -79,4 +104,9 @@ function threshold = otsuthreshold(values)
     betweenClassVariance = w0 .* w1 .* (mu0 - mu1).^2;
     [~, maxIndex] = max(betweenClassVariance);
     threshold = binCenters(maxIndex);
+
+    % Shift the threshold back
+    threshold = threshold + min(values) - 1;
+    
+    disp(['Calculated threshold: ', num2str(threshold)]);
 end

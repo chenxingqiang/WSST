@@ -16,7 +16,7 @@ function plotAccuracyVsComplexity(complexityLevels, accuracyLevels)
 
     figure('Position', [100, 100, 800, 600]);
     for i = 1:numMethods
-        plot(complexityLevels, accuracyLevels(i, :), '-o', 'Color', colors(i, :), 'LineWidth', 2, 'MarkerSize', 8);
+        plot(complexityLevels, accuracyLevels(i, :), '-o', 'Color', colors(i, :), 'LineWidth', 1, 'MarkerSize', 6);
         hold on;
     end
     hold off;

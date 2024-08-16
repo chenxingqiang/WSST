@@ -19,14 +19,22 @@ function plotErrorRates(P_ED_dBm, FPR_PPR_NN, FNR_PPR_NN, FPR_Eig_NN, FNR_Eig_NN
     validateattributes(FPR_Eig_NN, {'numeric'}, {'vector', 'numel', numel(P_ED_dBm)});
     validateattributes(FNR_Eig_NN, {'numeric'}, {'vector', 'numel', numel(P_ED_dBm)});
 
+    % Remove NaN values
+    valid_indices = ~isnan(FPR_PPR_NN) & ~isnan(FNR_PPR_NN) & ~isnan(FPR_Eig_NN) & ~isnan(FNR_Eig_NN);
+    P_ED_dBm = P_ED_dBm(valid_indices);
+    FPR_PPR_NN = FPR_PPR_NN(valid_indices);
+    FNR_PPR_NN = FNR_PPR_NN(valid_indices);
+    FPR_Eig_NN = FPR_Eig_NN(valid_indices);
+    FNR_Eig_NN = FNR_Eig_NN(valid_indices);
+
     % Create figure
     figure('Name', 'Error Rates vs. Eavesdropper Power', 'Position', [100, 100, 800, 600]);
 
     % Plot FPR
     subplot(2,1,1);
-    plot(P_ED_dBm, FPR_PPR_NN, 'b-o', 'LineWidth', 2, 'MarkerSize', 8);
+    plot(P_ED_dBm, FPR_PPR_NN, 'b-o', 'LineWidth', 1, 'MarkerSize', 6);
     hold on;
-    plot(P_ED_dBm, FPR_Eig_NN, 'r-s', 'LineWidth', 2, 'MarkerSize', 8);
+    plot(P_ED_dBm, FPR_Eig_NN, 'r-s', 'LineWidth', 1, 'MarkerSize', 6);
     hold off;
     title('False Positive Rate vs. Eavesdropper Power');
     xlabel('Eavesdropper Power (dBm)');
@@ -36,9 +44,9 @@ function plotErrorRates(P_ED_dBm, FPR_PPR_NN, FNR_PPR_NN, FPR_Eig_NN, FNR_Eig_NN
 
     % Plot FNR
     subplot(2,1,2);
-    plot(P_ED_dBm, FNR_PPR_NN, 'b-o', 'LineWidth', 2, 'MarkerSize', 8);
+    plot(P_ED_dBm, FNR_PPR_NN, 'b-o', 'LineWidth', 1, 'MarkerSize', 6);
     hold on;
-    plot(P_ED_dBm, FNR_Eig_NN, 'r-s', 'LineWidth', 2, 'MarkerSize', 8);
+    plot(P_ED_dBm, FNR_Eig_NN, 'r-s', 'LineWidth', 1, 'MarkerSize', 6);
     hold off;
     title('False Negative Rate vs. Eavesdropper Power');
     xlabel('Eavesdropper Power (dBm)');

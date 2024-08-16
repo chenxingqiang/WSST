@@ -3,7 +3,7 @@ function plotMDLHistogram(MDL_values, threshold, num_bins)
 %
 % Inputs:
 % MDL_values - Array of MDL values
-% threshold - Detection threshold value
+% threshold - Detection threshold value (optional)
 % num_bins - Number of bins for the histogram (optional, default is 50)
 
 % Set default number of bins if not provided
@@ -20,18 +20,20 @@ histogram(MDL_values, num_bins);
 % Hold on to add more elements to the plot
 hold on;
 
-% Add the threshold line
-xline(threshold, 'r--', 'LineWidth', 1);
+% Add the threshold line if provided
+if nargin > 1
+    xline(threshold, 'r--', 'LineWidth', 1);
+    legend('MDL Values', 'Threshold');
+else
+    legend('MDL Values');
+end
 
 % Label the axes
 xlabel('MDL Values');
 ylabel('Frequency');
 
 % Add a title
-title('MDL Distribution and Detection Threshold');
-
-% Add a legend
-legend('MDL Values', 'Threshold');
+title('MDL Distribution');
 
 % Release the hold on the figure
 hold off;

@@ -116,16 +116,29 @@ function main()
     indAttPres = randi([0, 1]);  % Randomly set the indicator of attack presence
     indAttUE = randi(K);  % Randomly set the index of the attacked user
     P_ED_single = P_ED(1);  % Use the first element of P_ED as a scalar
-    receivedSignal = simulatePSA(h_UE, g_ED, Phi, P_UE, P_ED_single, N, indAttPres, indAttUE);
-    plotReceivedSignal(receivedSignal);
+    Y = simulatePSA(h_UE, g_ED, Phi, P_UE, P_ED_single, N, indAttPres, indAttUE);
+    plotReceivedSignal(Y, N);
 
     % Visualize Network Topology
-    positions = generatePositions(gridSize, K); % Assuming generatePositions returns user positions
-    visualizeNetworkTopology(positions);
-
+    x_BS = 0; y_BS = 0;  % Coordinates of the Base Station
+    x_UE = rand(1, K) * gridSize; y_UE = rand(1, K) * gridSize;  % Coordinates of the User Equipment
+    x_ED = rand * gridSize; y_ED = rand * gridSize;  % Coordinates of the Eavesdropper
+    visualizeNetworkTopology(x_BS, y_BS, x_UE, y_UE, x_ED, y_ED, gridSize);
+    
     % Visualize PPR Distribution
-    PPRValues = calculatePPR(X_feature_PPR); % Assuming X_feature_PPR contains the necessary data
-    visualizePPRDistribution(PPRValues);
+    % Extract necessary parameters from X_feature_PPR
+    [numSamples, numFeatures, numPowerLevels] = size(X_feature_PPR);
+    PPRValues = zeros(numSamples, K);
+    for i = 1:numSamples
+        % Generate placeholder received signal Y
+        Y = randn(M, tau);  % Placeholder received signal with appropriate dimensions
+        Phi = randn(tau, K);  % Generate random training sequence matrix
+        sigma_n_2 = 1;  % Set noise variance
+        Beta_UE = ones(M, K);  % Assume equal path loss for all users
+        PPRValues(i, :) = calculatePPR(K, M, tau, P_UE, Beta_UE, Y, Phi, sigma_n_2);
+    end
+    PPR_threshold = 0.5;  % Set a threshold value for PPR detection
+    visualizePPRDistribution(PPRValues(:), PPR_threshold);
 
    % Generate and plot heatmap
     [numRows, numCols] = size(detAcc_PPR_NN);

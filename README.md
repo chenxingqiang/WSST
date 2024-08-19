@@ -54,54 +54,53 @@ For more detailed examples, please refer to the `examples` directory.
 
 ## Simulation Results
 
-The WSST toolkit generates various plots to visualize the simulation results and performance metrics.
-
-### Detection Accuracy
-![Detection Accuracy](DetectionAccuracy.png)
-
-This plot shows the detection accuracy of different methods (PPR, MDL, PPR-NN, Eig-NN) across different eavesdropper power levels.
-
-### Error Rates
-![Error Rates](ErrorRates.png)
-
-This plot displays the false positive rate (FPR) and false negative rate (FNR) of PPR-NN and Eig-NN methods.
-
-### Execution Times
-![Execution Times](ExecutionTimes.png)
-
-This plot visualizes the execution times of different stages of the simulation (training, detection, localization).
+The WSST toolkit generates various plots to visualize the simulation results and performance metrics. Here's a description of each plot:
 
 ### Accuracy vs. Complexity
 ![Accuracy vs. Complexity](AccuracyVsComplexity.png)
-
-This plot shows the detection accuracy of different methods against the system complexity (number of antennas).
+This plot shows the detection accuracy of different methods (PPR, MDL, PPR-NN, Eig-NN) against the system complexity, represented by the number of base station antennas. It helps evaluate the trade-off between detection performance and system complexity.
 
 ### Best Algorithm
 ![Best Algorithm](BestAlgorithm.png)
+This plot identifies and displays the best performing algorithm (PPR, MDL, PPR-NN, or Eig-NN) for each eavesdropper power level. It helps determine the most suitable detection method under different attack scenarios.
 
-This plot identifies and displays the best performing algorithm for each power level.
+### Detection Accuracy
+![Detection Accuracy](DetectionAccuracy.png)
+This plot shows the detection accuracy of different methods (PPR, MDL, PPR-NN, Eig-NN) across different eavesdropper power levels. It provides an overview of the detection performance of each method under varying attack strengths.
 
 ### Detection Heatmap
 ![Detection Heatmap](DetectionHeatmap.png)
+This heatmap visualizes the detection accuracy of the PPR-NN method for different combinations of base station antennas and eavesdropper power levels. It offers a more detailed view of the PPR-NN performance across different system configurations.
 
-This heatmap visualizes the detection accuracy of the PPR-NN method.
+### Error Rates
+![Error Rates](ErrorRates.png)
+This plot displays the false positive rate (FPR) and false negative rate (FNR) of the PPR-NN and Eig-NN methods across different eavesdropper power levels. It helps assess the reliability of these detection methods in terms of minimizing false alarms and missed detections.
+
+### Execution Times
+![Execution Times](ExecutionTimes.png)
+This plot visualizes the execution times of different stages of the simulation, including training, detection, and localization. It provides insights into the computational efficiency of the WSST toolkit and helps identify potential bottlenecks.
 
 ### Localization Accuracy
 ![Localization Accuracy](LocalizationAccuracy.png)
-
-This plot shows the localization accuracy for single and multiple attacker scenarios.
+This plot shows the localization accuracy for single and multiple attacker scenarios. It demonstrates the ability of the WSST toolkit to estimate the positions of the attackers based on the received signals at the base station.
 
 ### MDL Histogram
 ![MDL Histogram](MDLHistogram.png)
+This histogram displays the distribution of Minimum Description Length (MDL) values calculated from the received signals. It also shows the detection threshold used to distinguish between the presence and absence of attacks based on the MDL values.
 
-This histogram displays the distribution of MDL values along with a detection threshold.
+### Network Topology
+![Network Topology](NetworkTopology.png)
+This plot visualizes the spatial arrangement of the base station, user equipment, and eavesdropper in the simulated network. It provides a visual representation of the system layout and helps understand the relative positions of the network elements.
 
-### Received Signal
-![Received Signal](ReceivedSignal.png)
+### PPR Distribution
+![PPR Distribution](PPRDistribution.png)
+This plot shows the distribution of Pilot Pollution Ratio (PPR) values calculated from the received signals. It also displays the detection threshold used to differentiate between legitimate and malicious pilot signals based on the PPR values.
 
-This plot visualizes the received signal at the base station under a potential Pilot Spoofing Attack scenario.
+### Received Signal Visualization
+![Received Signal Visualization](ReceivedSignalVisualization.png)
+This plot visualizes the magnitude of the received signal at the base station over time and across different antennas. It helps analyze the characteristics of the received signal and identify any abnormalities or patterns indicative of a pilot spoofing attack.
 
-These plots provide valuable insights into the performance and behavior of the PSA detection and localization methods.
+These plots provide comprehensive insights into the performance, behavior, and efficiency of the PSA detection and localization methods implemented in the WSST toolkit.
 
 ## Directory Structure
 
@@ -134,8 +133,10 @@ These plots provide valuable insights into the performance and behavior of the P
 ├── main.asv
 ├── main.m
 ├── MDLHistogram.png
+├── NetworkTopology.png
+├── PPRDistribution.png
 ├── README.md
-├── ReceivedSignal.png
+├── ReceivedSignalVisualization.png
 ├── setup.m
 ├── src
 │   ├── attack

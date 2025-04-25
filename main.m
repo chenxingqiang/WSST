@@ -10,7 +10,7 @@ function main()
 % 1. Set up simulation parameters
 % 2. Generate dataset
 % 3. Train neural network models
-% 4. Perform attack detection
+% 4. Perform attack detection (both overall system and per-user detection)
 % 5. Perform attacker localization
 % 6. Calculate and visualize performance metrics
 %
@@ -155,6 +155,49 @@ function main()
     bestAlgoIdx = selectBestAlgorithm(detAcc_PPR, detAcc_MDL, detAcc_PPR_NN, detAcc_Eig_NN);
     plotBestAlgorithm(P_ED_dBm, bestAlgoIdx);
 
+    % Perform Attacked User Detection Simulation
+    disp('Performing attacked user detection simulation...');
+    tic;
+    
+    % Define attack scenarios
+    attackScenarios = struct();
+    attackScenarios(1).name = 'Single User Attack';
+    attackScenarios(1).numAttacked = 1;
+    attackScenarios(1).fixedUsers = 3; % User 3 is always attacked
+    
+    attackScenarios(2).name = 'Two User Attack';
+    attackScenarios(2).numAttacked = 2;
+    attackScenarios(2).fixedUsers = [2, 6]; % Users 2 and 6 are always attacked
+    
+    attackScenarios(3).name = 'Multiple User Attack';
+    attackScenarios(3).numAttacked = min(K, 3);
+    attackScenarios(3).fixedUsers = [1, 3, 5]; % First 3 users attacked (or less if K < 3)
+    
+    % Run the attacked user detection simulation
+    [detectionResults, userAccuracy] = simulateAttackedUserDetection(M, K, tau, gridSize, nbLoc, nbChanReal, P_ED, attackScenarios);
+    timeUserDetection = toc;
+    disp(['Attacked user detection time: ', num2str(timeUserDetection), ' seconds']);
+    
+    % Run a test case for visualization
+    disp('Running attacked user detection test case for visualization...');
+    tic;
+    testResults = testDetectAttackedUsers();
+    timeTestUserDetection = toc;
+    disp(['Test case execution time: ', num2str(timeTestUserDetection), ' seconds']);
+    
+    % Create a single visualization for the best test case
+    bestTestCase = 2; % Multiple user attack case typically shows best results
+    caseResult = testResults.caseResults{bestTestCase};
+    
+    % Visualize the attacked user detection results
+    visualizeAttackedUsers(caseResult.detectedAttackedUsers, caseResult.detectionMetrics, K, ...
+        ['Attacked User Detection: ' caseResult.description]);
+    
+    % Update execution times to include new functions
+    executionTimes = [timeTrain, timeDetect, timeLocateSingle, timeLocateMultiple, timeUserDetection, timeTestUserDetection];
+    plotExecutionTime(executionTimes, {'Training', 'Attack Detection', 'Single Attacker Localization', ...
+                                      'Multiple Attacker Localization', 'User-specific Detection', 'Detection Test Cases'});
+    
     % Display summary
     disp('Simulation complete. Results summary:');
     disp(['Average PPR-NN Detection Accuracy: ', num2str(mean(detAcc_PPR_NN))]);
@@ -163,7 +206,16 @@ function main()
     disp(['PPR-NN False Negative Rate: ', num2str(mean(FNR_PPR_NN))]);
     disp(['Eig-NN False Positive Rate: ', num2str(mean(FPR_Eig_NN))]);
     disp(['Eig-NN False Negative Rate: ', num2str(mean(FNR_Eig_NN))]);
+    
+    % Display attacked user detection results
+    disp('Attacked User Detection Results:');
+    for i = 1:length(attackScenarios)
+        disp(['  Scenario: ', attackScenarios(i).name]);
+        disp(['    Average Precision: ', num2str(mean(detectionResults.precision(i,:)))]);
+        disp(['    Average Recall: ', num2str(mean(detectionResults.recall(i,:)))]);
+        disp(['    Average F1 Score: ', num2str(mean(detectionResults.f1Score(i,:)))]);
+    end
+    
     disp(['Total Execution Time: ', num2str(sum(executionTimes)), ' seconds']);
-
     disp('All results have been plotted and saved.');
 end

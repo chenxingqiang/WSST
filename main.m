@@ -12,7 +12,12 @@ function main()
 % 3. Train neural network models
 % 4. Perform attack detection (both overall system and per-user detection)
 % 5. Perform attacker localization
-% 6. Calculate and visualize performance metrics
+% 6. Perform user-specific attack detection
+% 7. Calculate and visualize performance metrics
+%
+% The enhanced version now includes user-specific attack detection capabilities
+% that can identify which particular users are being targeted by attackers,
+% rather than just detecting the presence of an attack in the system.
 %
 % Note: Ensure all required functions are in the MATLAB path before running.
 
@@ -159,44 +164,67 @@ function main()
     disp('Performing attacked user detection simulation...');
     tic;
     
-    % Define attack scenarios
+    % Define attack scenarios as specified in the requirements
     attackScenarios = struct();
+    
+    % Scenario 1: Single User Attack (always attack user 3)
     attackScenarios(1).name = 'Single User Attack';
     attackScenarios(1).numAttacked = 1;
     attackScenarios(1).fixedUsers = 3; % User 3 is always attacked
     
+    % Scenario 2: Two User Attack (always attack users 2 and 6)
     attackScenarios(2).name = 'Two User Attack';
     attackScenarios(2).numAttacked = 2;
     attackScenarios(2).fixedUsers = [2, 6]; % Users 2 and 6 are always attacked
     
+    % Scenario 3: Multiple User Attack (attack users 1, 3, and 5)
     attackScenarios(3).name = 'Multiple User Attack';
     attackScenarios(3).numAttacked = min(K, 3);
-    attackScenarios(3).fixedUsers = [1, 3, 5]; % First 3 users attacked (or less if K < 3)
+    attackScenarios(3).fixedUsers = [1, 3, 5]; % Users 1, 3, and 5 are attacked
     
-    % Run the attacked user detection simulation
+    % Run the attacked user detection simulation using the core detection function
+    disp('Running comprehensive simulation with multiple attack scenarios...');
     [detectionResults, userAccuracy] = simulateAttackedUserDetection(M, K, tau, gridSize, nbLoc, nbChanReal, P_ED, attackScenarios);
     timeUserDetection = toc;
     disp(['Attacked user detection time: ', num2str(timeUserDetection), ' seconds']);
     
-    % Run a test case for visualization
-    disp('Running attacked user detection test case for visualization...');
+    % Run test cases for validation and visualization
+    disp('Running attacked user detection test cases for validation...');
     tic;
     testResults = testDetectAttackedUsers();
     timeTestUserDetection = toc;
     disp(['Test case execution time: ', num2str(timeTestUserDetection), ' seconds']);
     
-    % Create a single visualization for the best test case
+    % Display test results summary
+    disp('Test case results summary:');
+    for i = 1:length(testResults.caseResults)
+        caseResult = testResults.caseResults{i};
+        disp(['  Case ', num2str(i), ': ', caseResult.description]);
+        disp(['    Precision: ', num2str(caseResult.precision)]);
+        disp(['    Recall: ', num2str(caseResult.recall)]);
+        disp(['    F1 Score: ', num2str(caseResult.f1Score)]);
+    end
+    
+    % Create visualizations for each test case
+    for i = 1:length(testResults.caseResults)
+        caseResult = testResults.caseResults{i};
+        visualizeAttackedUsers(caseResult.detectedAttackedUsers, caseResult.detectionMetrics, K, ...
+            ['Attacked User Detection: ' caseResult.description]);
+    end
+    
+    % Create a detailed visualization for the multiple user attack case (typically shows best results)
     bestTestCase = 2; % Multiple user attack case typically shows best results
     caseResult = testResults.caseResults{bestTestCase};
-    
-    % Visualize the attacked user detection results
     visualizeAttackedUsers(caseResult.detectedAttackedUsers, caseResult.detectionMetrics, K, ...
-        ['Attacked User Detection: ' caseResult.description]);
+        ['Detailed Attacked User Detection: ' caseResult.description]);
     
-    % Update execution times to include new functions
+    % Update execution times to include new functions with enhanced visualization
     executionTimes = [timeTrain, timeDetect, timeLocateSingle, timeLocateMultiple, timeUserDetection, timeTestUserDetection];
-    plotExecutionTime(executionTimes, {'Training', 'Attack Detection', 'Single Attacker Localization', ...
-                                      'Multiple Attacker Localization', 'User-specific Detection', 'Detection Test Cases'});
+    executionLabels = {'Training', 'Attack Detection', 'Single Attacker Localization', ...
+                      'Multiple Attacker Localization', 'User-specific Detection', 'Detection Test Cases'};
+    
+    % Plot execution times with enhanced visualization
+    plotExecutionTime(executionTimes, executionLabels);
     
     % Display summary
     disp('Simulation complete. Results summary:');
@@ -207,15 +235,79 @@ function main()
     disp(['Eig-NN False Positive Rate: ', num2str(mean(FPR_Eig_NN))]);
     disp(['Eig-NN False Negative Rate: ', num2str(mean(FNR_Eig_NN))]);
     
-    % Display attacked user detection results
+    % Display comprehensive attacked user detection results
     disp('Attacked User Detection Results:');
+    disp('==================================');
+    
+    % Display results for each attack scenario
     for i = 1:length(attackScenarios)
-        disp(['  Scenario: ', attackScenarios(i).name]);
-        disp(['    Average Precision: ', num2str(mean(detectionResults.precision(i,:)))]);
-        disp(['    Average Recall: ', num2str(mean(detectionResults.recall(i,:)))]);
-        disp(['    Average F1 Score: ', num2str(mean(detectionResults.f1Score(i,:)))]);
+        disp(['Scenario ', num2str(i), ': ', attackScenarios(i).name]);
+        disp(['  Attacked Users: ', num2str(attackScenarios(i).fixedUsers)]);
+        disp(['  Average Precision: ', num2str(mean(detectionResults.precision(i,:)))]);
+        disp(['  Average Recall: ', num2str(mean(detectionResults.recall(i,:)))]);
+        disp(['  Average F1 Score: ', num2str(mean(detectionResults.f1Score(i,:)))]);
+        
+        % Display per-power level results
+        disp('  Performance by attacker power level:');
+        for p = 1:length(P_ED_dBm)
+            disp(['    Power ', num2str(P_ED_dBm(p)), ' dBm: F1=', ...
+                  num2str(detectionResults.f1Score(i,p)), ', Precision=', ...
+                  num2str(detectionResults.precision(i,p)), ', Recall=', ...
+                  num2str(detectionResults.recall(i,p))]);
+        end
+        disp('----------------------------------');
     end
     
-    disp(['Total Execution Time: ', num2str(sum(executionTimes)), ' seconds']);
+    % Display overall performance summary
+    disp('Overall Performance Summary:');
+    disp(['  Average Precision (all scenarios): ', num2str(mean(detectionResults.precision(:)))]);
+    disp(['  Average Recall (all scenarios): ', num2str(mean(detectionResults.recall(:)))]);
+    disp(['  Average F1 Score (all scenarios): ', num2str(mean(detectionResults.f1Score(:)))]);
+    disp(['  Total Execution Time: ', num2str(sum(executionTimes)), ' seconds']);
     disp('All results have been plotted and saved.');
+    
+    % Create a comprehensive summary figure for the user detection results
+    figure('Name', 'User Detection Performance Summary', 'Position', [100, 100, 1000, 600]);
+    
+    % Plot F1 scores across power levels for all scenarios
+    subplot(2, 2, 1);
+    plot(P_ED_dBm, detectionResults.f1Score', 'LineWidth', 2, 'Marker', 'o');
+    xlabel('Attacker Power (dBm)', 'FontWeight', 'bold');
+    ylabel('F1 Score', 'FontWeight', 'bold');
+    title('Detection F1 Score vs. Attacker Power');
+    grid on;
+    legend({attackScenarios.name}, 'Location', 'southeast');
+    
+    % Plot precision across power levels
+    subplot(2, 2, 2);
+    plot(P_ED_dBm, detectionResults.precision', 'LineWidth', 2, 'Marker', 'o');
+    xlabel('Attacker Power (dBm)', 'FontWeight', 'bold');
+    ylabel('Precision', 'FontWeight', 'bold');
+    title('Detection Precision vs. Attacker Power');
+    grid on;
+    
+    % Plot recall across power levels
+    subplot(2, 2, 3);
+    plot(P_ED_dBm, detectionResults.recall', 'LineWidth', 2, 'Marker', 'o');
+    xlabel('Attacker Power (dBm)', 'FontWeight', 'bold');
+    ylabel('Recall', 'FontWeight', 'bold');
+    title('Detection Recall vs. Attacker Power');
+    grid on;
+    
+    % Plot execution time breakdown
+    subplot(2, 2, 4);
+    bar(executionTimes);
+    set(gca, 'XTick', 1:length(executionTimes));
+    set(gca, 'XTickLabel', executionLabels);
+    xtickangle(45);
+    ylabel('Time (seconds)', 'FontWeight', 'bold');
+    title('Execution Time Breakdown');
+    grid on;
+    
+    % Save the summary figure
+    set(gcf, 'Color', 'w');
+    saveas(gcf, 'UserDetectionSummary.png');
+    
+    disp('User detection analysis complete!');
+    disp('All results have been plotted and saved to the current directory.');
 end

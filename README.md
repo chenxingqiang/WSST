@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Wireless Security Simulation Toolkit (WSST) is a MATLAB-based library for simulating and analyzing Pilot Spoofing Attacks (PSA) in massive MIMO systems. It provides a comprehensive set of tools for channel modeling, signal processing, attack simulation, and detection using both traditional methods and machine learning approaches.
+The Wireless Security Simulation Toolkit (WSST) is a MATLAB-based library for simulating and analyzing Pilot Spoofing Attacks (PSA) in massive MIMO systems. It provides a comprehensive set of tools for channel modeling, signal processing, attack simulation, and detection using both traditional methods and machine learning approaches. The toolkit now includes enhanced functionality for detecting which specific users are being targeted by attackers, not just whether an attack is present in the system.
 
 ## Features
 
@@ -13,6 +13,11 @@ The Wireless Security Simulation Toolkit (WSST) is a MATLAB-based library for si
   - Pilot Pollution Ratio (PPR)
   - Minimum Description Length (MDL)
   - Neural Network-based detection
+- **User-specific attack detection:**
+  - Identification of which specific users are being targeted
+  - Support for multiple attack scenarios (single user, two users, multiple users)
+  - Performance metrics including precision, recall, and F1 score
+- Attacker localization for both single and multiple attackers
 - Performance analysis and visualization tools
 
 ## Installation
@@ -46,8 +51,27 @@ trainAndSaveNNModels(X_feature_PPR, X_feature_Eig, y_label);
 % Perform attack detection
 [detAcc_PPR, detAcc_MDL, detAcc_PPR_NN, detAcc_Eig_NN] = detectMultipleAttackers(X_feature_PPR, X_feature_Eig, y_label, P_ED, P_ED_dBm, nbLoc, nbChanReal);
 
+% Define attack scenarios for user-specific detection
+attackScenarios = struct();
+attackScenarios(1).name = 'Single User Attack';
+attackScenarios(1).numAttacked = 1;
+attackScenarios(1).fixedUsers = 3; % User 3 is always attacked
+
+attackScenarios(2).name = 'Two User Attack';
+attackScenarios(2).numAttacked = 2;
+attackScenarios(2).fixedUsers = [2, 6]; % Users 2 and 6 are always attacked
+
+% Perform user-specific attack detection
+[detectionResults, userAccuracy] = simulateAttackedUserDetection(M, K, tau, gridSize, nbLoc, nbChanReal, P_ED, attackScenarios);
+
 % Visualize results
 plotDetectionAccuracy(P_ED_dBm, detAcc_PPR, detAcc_MDL, detAcc_PPR_NN, detAcc_Eig_NN);
+
+% Visualize user-specific detection results
+testResults = testDetectAttackedUsers();
+caseResult = testResults.caseResults{2}; % Multiple user attack case
+visualizeAttackedUsers(caseResult.detectedAttackedUsers, caseResult.detectionMetrics, K, 'Attacked User Detection');
+
 ```
 
 For more detailed examples, please refer to the `examples` directory.
@@ -57,50 +81,58 @@ For more detailed examples, please refer to the `examples` directory.
 The WSST toolkit generates various plots to visualize the simulation results and performance metrics. Here's a description of each plot:
 
 ### Accuracy vs. Complexity
-![Accuracy vs. Complexity](AccuracyVsComplexity.png)
+![Accuracy vs. Complexity](results/AccuracyVsComplexity.png)
 This plot shows the detection accuracy of different methods (PPR, MDL, PPR-NN, Eig-NN) against the system complexity, represented by the number of base station antennas. It helps evaluate the trade-off between detection performance and system complexity.
 
 ### Best Algorithm
-![Best Algorithm](BestAlgorithm.png)
+![Best Algorithm](results/BestAlgorithm.png)
 This plot identifies and displays the best performing algorithm (PPR, MDL, PPR-NN, or Eig-NN) for each eavesdropper power level. It helps determine the most suitable detection method under different attack scenarios.
 
 ### Detection Accuracy
-![Detection Accuracy](DetectionAccuracy.png)
+![Detection Accuracy](results/DetectionAccuracy.png)
 This plot shows the detection accuracy of different methods (PPR, MDL, PPR-NN, Eig-NN) across different eavesdropper power levels. It provides an overview of the detection performance of each method under varying attack strengths.
 
 ### Detection Heatmap
-![Detection Heatmap](DetectionHeatmap.png)
+![Detection Heatmap](results/DetectionHeatmap.png)
 This heatmap visualizes the detection accuracy of the PPR-NN method for different combinations of base station antennas and eavesdropper power levels. It offers a more detailed view of the PPR-NN performance across different system configurations.
 
 ### Error Rates
-![Error Rates](ErrorRates.png)
+![Error Rates](results/ErrorRates.png)
 This plot displays the false positive rate (FPR) and false negative rate (FNR) of the PPR-NN and Eig-NN methods across different eavesdropper power levels. It helps assess the reliability of these detection methods in terms of minimizing false alarms and missed detections.
 
 ### Execution Times
-![Execution Times](ExecutionTimes.png)
+![Execution Times](results/ExecutionTimes.png)
 This plot visualizes the execution times of different stages of the simulation, including training, detection, and localization. It provides insights into the computational efficiency of the WSST toolkit and helps identify potential bottlenecks.
 
 ### Localization Accuracy
-![Localization Accuracy](LocalizationAccuracy.png)
+![Localization Accuracy](results/LocalizationAccuracy.png)
 This plot shows the localization accuracy for single and multiple attacker scenarios. It demonstrates the ability of the WSST toolkit to estimate the positions of the attackers based on the received signals at the base station.
 
 ### MDL Histogram
-![MDL Histogram](MDLHistogram.png)
+![MDL Histogram](results/MDLHistogram.png)
 This histogram displays the distribution of Minimum Description Length (MDL) values calculated from the received signals. It also shows the detection threshold used to distinguish between the presence and absence of attacks based on the MDL values.
 
 ### Network Topology
-![Network Topology](NetworkTopology.png)
+![Network Topology](results/NetworkTopology.png)
 This plot visualizes the spatial arrangement of the base station, user equipment, and eavesdropper in the simulated network. It provides a visual representation of the system layout and helps understand the relative positions of the network elements.
 
 ### PPR Distribution
-![PPR Distribution](PPRDistribution.png)
+![PPR Distribution](results/PPRDistribution.png)
 This plot shows the distribution of Pilot Pollution Ratio (PPR) values calculated from the received signals. It also displays the detection threshold used to differentiate between legitimate and malicious pilot signals based on the PPR values.
 
 ### Received Signal Visualization
-![Received Signal Visualization](ReceivedSignalVisualization.png)
+![Received Signal Visualization](results/ReceivedSignalVisualization.png)
 This plot visualizes the magnitude of the received signal at the base station over time and across different antennas. It helps analyze the characteristics of the received signal and identify any abnormalities or patterns indicative of a pilot spoofing attack.
 
-These plots provide comprehensive insights into the performance, behavior, and efficiency of the PSA detection and localization methods implemented in the WSST toolkit.
+### User Detection Performance Summary
+![User Detection Performance Summary](results/UserDetectionSummary.png)
+This comprehensive plot shows the performance metrics of the user-specific attack detection across different attack scenarios and power levels. It displays F1 scores, precision, and recall for each scenario, helping to evaluate the effectiveness of the detection algorithm in identifying which specific users are being targeted by attackers.
+
+### Attacked User Visualization
+![Attacked User Visualization](results/AttackScenario_2.png)
+This visualization shows which specific users are detected as being under attack. It uses color coding to distinguish between attacked and normal users and displays the detection metrics for each user along with the detection threshold.
+
+These plots provide comprehensive insights into the performance, behavior, and efficiency of the PSA detection, user-specific attack identification, and localization methods implemented in the WSST toolkit.
 
 ## Directory Structure
 
@@ -210,11 +242,17 @@ The WSST toolkit includes the following main directories:
   - `channel/`: Channel modeling functions
   - `signal/`: Signal generation functions
   - `attack/`: PSA simulation functions
-  - `detection/`: PSA detection functions
+  - `detection/`: PSA detection functions including user-specific attack detection:
+    - `detectAttackedUsers.m`: Core function for identifying which users are under attack
+    - `testDetectAttackedUsers.m`: Test cases for user detection functionality
   - `localization/`: Attacker localization functions
   - `utils/`: Utility functions
   - `data/`: Data generation functions
   - `ml/`: Machine learning functions
+  - `simulation/`: Simulation frameworks including:
+    - `simulateAttackedUserDetection.m`: Comprehensive simulation for user-specific attack detection
+  - `visualization/`: Visualization tools including:
+    - `visualizeAttackedUsers.m`: Graphical representation of attacked users
 - `docs/`: Documentation, including API reference and example usage guides
 - `examples/`: Example scripts demonstrating WSST usage
 - `tests/`: Unit tests for WSST functions
